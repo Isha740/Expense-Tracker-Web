@@ -2,7 +2,6 @@ import React from "react";
 import { FaTrash, FaEdit, FaArrowDown, FaCalendarAlt } from "react-icons/fa";
 
 export default function ExpenseTable() {
-  // FAANG Signal: Mock data structured exactly like an eventual MongoDB schema
   const mockExpenses = [
     { id: "1", title: "Adobe Creative Cloud", amount: 1599, category: "Software", date: "2026-06-02" },
     { id: "2", title: "Starbucks Coffee", amount: 350, category: "Food & Drinks", date: "2026-06-03" },
