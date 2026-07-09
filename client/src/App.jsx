@@ -3,6 +3,7 @@ import Header from "./components/Header";
 import ExpenseTable from "./components/ExpenseTable";
 import BudgetLimitCard from "./components/BudgetLimitCard";
 import AnalyticsCharts from "./components/AnalyticsCharts";
+import FinancialRecommendations from "./components/FinancialRecommendations";
 
 function App() {
   // Application Data Core
@@ -65,6 +66,11 @@ function App() {
               setLimit={setLimit} 
               currentTotalExpense={currentTotalExpense}
               isOverBudget={isOverBudget}
+            />
+
+            <FinancialRecommendations 
+              currentTotalExpense={currentTotalExpense} 
+              limit={limit} 
             />
           </aside>
 
