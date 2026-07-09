@@ -1,12 +1,10 @@
 import React, { useState } from "react";
 import { FaSlidersH, FaCheckCircle, FaEdit, FaExclamationTriangle } from "react-icons/fa";
 
-export default function BudgetLimitCard() {
-  const [limit, setLimit] = useState("");
+export default function BudgetLimitCard({ limit, setLimit, currentTotalExpense, isOverBudget }) {
   const [isLimitSet, setIsLimitSet] = useState(false);
   const [inputValue, setInputValue] = useState("");
 
-  const currentTotalExpense = 6449; 
   const currentMonth = new Date().toLocaleString("default", { month: "long" });
 
   const handleSetLimit = (e) => {
@@ -21,12 +19,10 @@ export default function BudgetLimitCard() {
   };
 
   const percentSpent = limit ? Math.min((currentTotalExpense / limit) * 100, 100) : 0;
-  const isOverBudget = currentTotalExpense > limit;
 
   return (
     <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden p-6 transition-all duration-300">
       
-      {/* CASE 1: Form View (Displays when no limit has been configured) */}
       {!isLimitSet ? (
         <div className="animate-in fade-in duration-200">
           <div className="flex items-center gap-3 mb-4">
@@ -57,17 +53,13 @@ export default function BudgetLimitCard() {
               </div>
             </div>
 
-            <button
-              type="submit"
-              className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl shadow-md shadow-blue-500/10 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
-            >
+            <button type="submit" className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl shadow-md shadow-blue-500/10 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500/50">
               Set {currentMonth} Limit
             </button>
           </form>
         </div>
       ) : (
-        /* CASE 2: Metric Dashboard View (Displays when form disappears) */
-        <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+        <div className="animate-in fade-in slide-in-from-top-2 duration-300">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2.5">
               <FaCheckCircle className={isOverBudget ? "text-rose-500" : "text-emerald-500"} size={18} />
@@ -75,17 +67,14 @@ export default function BudgetLimitCard() {
                 {currentMonth} Budget Status
               </span>
             </div>
-            {/* Elegant action modifier to toggle form state back open if user wants to change it */}
             <button
               onClick={handleResetLimit}
               className="p-1.5 rounded-lg border border-gray-100 bg-gray-50 text-slate-400 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-100 transition-all duration-150"
-              title="Modify Limit"
             >
               <FaEdit size={14} />
             </button>
           </div>
 
-          {/* Large Data Display */}
           <div className="space-y-1 mb-5">
             <p className="text-xs text-slate-500 font-medium leading-none">Configured Cap</p>
             <p className="text-3xl font-black text-slate-900 tracking-tight">
@@ -94,7 +83,6 @@ export default function BudgetLimitCard() {
             </p>
           </div>
 
-          {/* Premium UX: Dynamic Budget Progress Calculation Engine */}
           <div className="space-y-2">
             <div className="flex justify-between text-xs font-bold">
               <span className="text-slate-500">
@@ -105,7 +93,6 @@ export default function BudgetLimitCard() {
               </span>
             </div>
             
-            {/* Progress Bar Track */}
             <div className="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden border border-gray-200/50">
               <div
                 style={{ width: `${percentSpent}%` }}
@@ -117,7 +104,6 @@ export default function BudgetLimitCard() {
               />
             </div>
 
-            {/* Over Budget System Warning Flag */}
             {isOverBudget && (
               <div className="flex items-center gap-2 text-rose-600 bg-rose-50 border border-rose-100 rounded-xl p-2.5 mt-3 text-xs font-semibold animate-pulse">
                 <FaExclamationTriangle className="flex-shrink-0" />
@@ -127,7 +113,6 @@ export default function BudgetLimitCard() {
           </div>
         </div>
       )}
-
     </div>
   );
 }
