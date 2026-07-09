@@ -53,7 +53,7 @@ export default function ExpenseTable({ expenses, totalExpense, isOverBudget, onA
               </p>
             </div>
             
-            {/* Industry Grade Action Trigger: Add Button aligned perfectly inside header line */}
+            {/* Grade Action Trigger: Add Button aligned perfectly inside header line */}
             <button
               onClick={() => setIsModalOpen(true)}
               className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-sm hover:shadow transition-all self-start sm:self-center"
@@ -75,8 +75,8 @@ export default function ExpenseTable({ expenses, totalExpense, isOverBudget, onA
         </div>
       </div>
 
-      {/* Table Interface Viewport */}
-      <div className="overflow-x-auto">
+      {/* Table Interface Viewport with strict height boundaries and internal scrolling mechanisms */}
+      <div className="overflow-x-auto max-h-[400px] overflow-y-auto custom-scrollbar">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b border-gray-200 text-xs font-bold uppercase tracking-wider text-slate-400 bg-gray-50/30">
@@ -128,7 +128,6 @@ export default function ExpenseTable({ expenses, totalExpense, isOverBudget, onA
         </table>
       </div>
 
-      {/* FAANG Pattern: Fully Accessible Dynamic Overlay Modal Backdrop */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
           
