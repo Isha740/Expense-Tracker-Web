@@ -1,29 +1,26 @@
 import React, { useState } from "react";
-import { FaSlidersH, FaCheckCircle, FaEdit, FaExclamationTriangle } from "react-icons/fa";
+import { FaSlidersH, FaCheckCircle, FaExclamationTriangle } from "react-icons/fa";
 
-export default function BudgetLimitCard({ limit, setLimit, currentTotalExpense, isOverBudget }) {
-  const [isLimitSet, setIsLimitSet] = useState(false);
+export default function BudgetLimitCard({ limit, onSetLimit, currentTotalExpense, isOverBudget }) {
   const [inputValue, setInputValue] = useState("");
-
   const currentMonth = new Date().toLocaleString("default", { month: "long" });
 
-  const handleSetLimit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!inputValue || isNaN(inputValue) || inputValue <= 0) return;
-    setLimit(parseFloat(inputValue));
-    setIsLimitSet(true);
-  };
-
-  const handleResetLimit = () => {
-    setIsLimitSet(false);
+    
+    await onSetLimit(parseFloat(inputValue));
   };
 
   const percentSpent = limit ? Math.min((currentTotalExpense / limit) * 100, 100) : 0;
 
+  // The view branches purely on whether limit exists inside MongoDB (limit > 0)
+  const isLimitAlreadySetInDb = limit > 0;
+
   return (
     <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden p-6 transition-all duration-300">
       
-      {!isLimitSet ? (
+      {!isLimitAlreadySetInDb ? (
         <div className="animate-in fade-in duration-200">
           <div className="flex items-center gap-3 mb-4">
             <div className="p-2.5 rounded-xl bg-blue-50 text-blue-600 border border-blue-100">
@@ -35,7 +32,7 @@ export default function BudgetLimitCard({ limit, setLimit, currentTotalExpense, 
             </div>
           </div>
 
-          <form onSubmit={handleSetLimit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label htmlFor="budget-limit" className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
                 Monthly Cap Amount (₹)
@@ -53,7 +50,7 @@ export default function BudgetLimitCard({ limit, setLimit, currentTotalExpense, 
               </div>
             </div>
 
-            <button type="submit" className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl shadow-md shadow-blue-500/10 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500/50">
+            <button type="submit" className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl shadow-md shadow-blue-500/10 transition-all duration-150">
               Set {currentMonth} Limit
             </button>
           </form>
@@ -67,12 +64,7 @@ export default function BudgetLimitCard({ limit, setLimit, currentTotalExpense, 
                 {currentMonth} Budget Status
               </span>
             </div>
-            <button
-              onClick={handleResetLimit}
-              className="p-1.5 rounded-lg border border-gray-100 bg-gray-50 text-slate-400 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-100 transition-all duration-150"
-            >
-              <FaEdit size={14} />
-            </button>
+            {/* The edit pencil button has been removed, satisfying the lock policy rule */}
           </div>
 
           <div className="space-y-1 mb-5">
@@ -96,10 +88,8 @@ export default function BudgetLimitCard({ limit, setLimit, currentTotalExpense, 
             <div className="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden border border-gray-200/50">
               <div
                 style={{ width: `${percentSpent}%` }}
-                className={`h-full rounded-full transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) ${
-                  isOverBudget 
-                    ? "bg-gradient-to-r from-rose-500 to-red-600 shadow-sm shadow-rose-500/20" 
-                    : "bg-gradient-to-r from-blue-500 to-blue-600"
+                className={`h-full rounded-full transition-all duration-500 ${
+                  isOverBudget ? "bg-gradient-to-r from-rose-500 to-red-600" : "bg-gradient-to-r from-blue-500 to-blue-600"
                 }`}
               />
             </div>

@@ -10,27 +10,86 @@ function App() {
   const [limit, setLimit] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  const API_URL = "http://localhost:5000/api/expenses";
+  const EXPENSE_API = "http://localhost:5000/api/expenses";
+  const BUDGET_API = "http://localhost:5000/api/budget/current";
 
-  const fetchExpenses = async () => {
+  const fetchInitialData = async () => {
     try {
       setLoading(true);
-      const response = await fetch(API_URL);
-      if (!response.ok) throw new Error("Network response was not stable");
-      const data = await response.json();
-      setExpenses(data);
+      
+      // Hit both database streams concurrently
+      const [expenseRes, budgetRes] = await Promise.all([
+        fetch(EXPENSE_API),
+        fetch(BUDGET_API)
+      ]);
+
+      const expenseData = await expenseRes.json();
+      const budgetData = await budgetRes.json();
+
+      setExpenses(expenseData);
+      setLimit(budgetData.amount || 0);
     } catch (error) {
-      console.error("API Fetch Matrix failure:", error.message);
+      console.error("❌ Critical Databank sync failure:", error.message);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchExpenses();
+    fetchInitialData();
   }, []);
 
+  const handleAddExpense = async (newExpense) => {
+    try {
+      const response = await fetch(EXPENSE_API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newExpense),
+      });
+
+      if (!response.ok) throw new Error("Failed to write document to database");
+      
+      fetchInitialData();
+    } catch (error) {
+      console.error("API Post failure:", error.message);
+    }
+  };
+
+  const handleDeleteExpense = async (_id) => {
+    try {
+      const response = await fetch(`${EXPENSE_API}/${_id}`, {method: "DELETE" });
+      if (!response.ok) throw new Error("Failed to clear transaction from data cluster");
+      setExpenses((prevExpenses) => prevExpenses.filter((item) => item._id !== _id));
+    } catch (error) {
+      console.error("API Delete processing pipeline failure:", error.message);
+    }
+  };
+
+  const handleSetBudgetLimit = async (amountValue) => {
+    try {
+      const response = await fetch("http://localhost:5000/api/budget", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: amountValue }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        // Pop out the server response error rules directly to user view alerts
+        alert(data.message);
+        return false;
+      }
+
+      setLimit(data.amount);
+      return true;
+    } catch (error) {
+      console.error(error);
+      return false;
+    }
+  };
   
+   
   const currentTotalExpense = expenses.reduce((sum, item) => sum + item.amount, 0);
   const isOverBudget = limit > 0 && currentTotalExpense > limit;
 
@@ -41,36 +100,6 @@ function App() {
     { month: "Apr", expenses: 14200, limit: 15000 },
     { month: "May", expenses: 22000, limit: 20000 },
   ];
-
-  const handleAddExpense = async (newExpense) => {
-    try {
-      const response = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newExpense),
-      });
-
-      if (!response.ok) throw new Error("Failed to write document to database");
-      
-      fetchExpenses();
-    } catch (error) {
-      console.error("API Post failure:", error.message);
-    }
-  };
-
-  const handleDeleteExpense = async (_id) => {
-    try {
-      const response = await fetch(`${API_URL}/${_id}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) throw new Error("Failed to clear transaction from data cluster");
-
-      setExpenses((prevExpenses) => prevExpenses.filter((item) => item._id !== _id));
-    } catch (error) {
-      console.error("API Delete processing pipeline failure:", error.message);
-    }
-  };
 
   return (
     <div className="bg-gray-100 min-h-screen text-slate-800 font-sans antialiased pb-12">
@@ -101,9 +130,8 @@ function App() {
           </div>
 
           <aside className="space-y-6">
-            <BudgetLimitCard limit={limit} setLimit={setLimit} currentTotalExpense={currentTotalExpense} isOverBudget={isOverBudget} />
+            <BudgetLimitCard limit={limit} onSetLimit={handleSetBudgetLimit} currentTotalExpense={currentTotalExpense} isOverBudget={isOverBudget} />
           </aside>
-
         </div>
       </main>
     </div>

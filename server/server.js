@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
 import expenseRouter from "./routes/expenseRoutes.js"; // Import router
+import budgetRouter from "./routes/budgetRoutes.js";
 
 dotenv.config();
 
@@ -20,6 +21,7 @@ mongoose
   .catch((err) => console.error("Database connection error:", err));
 
 app.use("/api/expenses", expenseRouter); 
+app.use("/api/budget", budgetRouter);
 
 app.get("/api/health", (req, res) => {
   res.status(200).json({ status: "healthy", timestamp: new Date() });
