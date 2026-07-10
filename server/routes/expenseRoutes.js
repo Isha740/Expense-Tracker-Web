@@ -1,7 +1,52 @@
 import express from "express";
 import Expense from "../models/Expense.js";
+import Budget from "../models/Budget.js";
 
 const router = express.Router();
+
+router.get("/monthly-summary", async (req, res) => {
+  try {
+    const currentYear = new Date().getFullYear(); // Dynamically isolates the current tracking year (2026)
+
+    const expenses = await Expense.find();
+    const budgets = await Budget.find();
+
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    
+    let summaryMap = {};
+    monthNames.forEach((m) => {
+      summaryMap[m] = { month: m, expenses: 0, limit: 0 };
+    });
+
+    expenses.forEach((item) => {
+      if (!item.date) return;
+      const dateObj = new Date(item.date);
+      
+      if (!isNaN(dateObj) && dateObj.getFullYear() === currentYear) {
+        const mName = monthNames[dateObj.getMonth()];
+        summaryMap[mName].expenses += item.amount;
+      }
+    });
+
+    budgets.forEach((b) => {
+      // b.monthYear looks like "July 2026", so splitting it to check month and year matches
+      const [bMonthName, bYearString] = b.monthYear.split(" ");
+      
+      if (parseInt(bYearString) === currentYear) {
+        const shortMonth = bMonthName.substring(0, 3); // "July" -> "Jul"
+        if (summaryMap[shortMonth]) {
+          summaryMap[shortMonth].limit = b.amount;
+        }
+      }
+    });
+
+    const finalChartArray = monthNames.map((m) => summaryMap[m]);
+    
+    res.status(200).json(finalChartArray);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to generate monthly tracking logs", error: error.message });
+  }
+});
 
 router.get("/", async (req, res) => {
   try {

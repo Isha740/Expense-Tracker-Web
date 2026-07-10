@@ -8,28 +8,35 @@ function App() {
  
   const [expenses, setExpenses] = useState([]);
   const [limit, setLimit] = useState(0);
+  const [historicalData, setHistoricalData] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const EXPENSE_API = "http://localhost:5000/api/expenses";
   const BUDGET_API = "http://localhost:5000/api/budget/current";
+  const SUMMARY_API = "http://localhost:5000/api/expenses/monthly-summary";
 
   const fetchInitialData = async () => {
     try {
       setLoading(true);
-      
-      // Hit both database streams concurrently
-      const [expenseRes, budgetRes] = await Promise.all([
+      const [expenseRes, budgetRes, summaryRes] = await Promise.all([
         fetch(EXPENSE_API),
-        fetch(BUDGET_API)
+        fetch(BUDGET_API),
+        fetch(SUMMARY_API)
       ]);
+
+      if (!expenseRes.ok || !budgetRes.ok || !summaryRes.ok) {
+        throw new Error("Failed to clear data synchronization endpoints");
+      }
 
       const expenseData = await expenseRes.json();
       const budgetData = await budgetRes.json();
+      const summaryData = await summaryRes.json();
 
       setExpenses(expenseData);
       setLimit(budgetData.amount || 0);
+      setHistoricalData(summaryData);
     } catch (error) {
-      console.error("❌ Critical Databank sync failure:", error.message);
+      console.error("Critical Databank sync failure:", error.message);
     } finally {
       setLoading(false);
     }
@@ -60,6 +67,7 @@ function App() {
       const response = await fetch(`${EXPENSE_API}/${_id}`, {method: "DELETE" });
       if (!response.ok) throw new Error("Failed to clear transaction from data cluster");
       setExpenses((prevExpenses) => prevExpenses.filter((item) => item._id !== _id));
+      fetchInitialData();
     } catch (error) {
       console.error("API Delete processing pipeline failure:", error.message);
     }
@@ -76,12 +84,12 @@ function App() {
       const data = await response.json();
 
       if (!response.ok) {
-        // Pop out the server response error rules directly to user view alerts
         alert(data.message);
         return false;
       }
 
       setLimit(data.amount);
+      fetchInitialData();
       return true;
     } catch (error) {
       console.error(error);
@@ -108,7 +116,7 @@ function App() {
       <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8 space-y-6">
         
         <section aria-label="Dashboard Analytics Core">
-          <AnalyticsCharts currentExpenses={expenses} historyData={yearlyHistoricalData} />
+          <AnalyticsCharts currentExpenses={expenses} historyData={historicalData} />
         </section>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
