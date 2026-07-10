@@ -58,6 +58,20 @@ function App() {
     }
   };
 
+  const handleDeleteExpense = async (_id) => {
+    try {
+      const response = await fetch(`${API_URL}/${_id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) throw new Error("Failed to clear transaction from data cluster");
+
+      setExpenses((prevExpenses) => prevExpenses.filter((item) => item._id !== _id));
+    } catch (error) {
+      console.error("API Delete processing pipeline failure:", error.message);
+    }
+  };
+
   return (
     <div className="bg-gray-100 min-h-screen text-slate-800 font-sans antialiased pb-12">
       <Header />
@@ -73,7 +87,7 @@ function App() {
           <div className="lg:col-span-2">
             {loading ? (
               <div className="bg-white p-12 rounded-2xl border border-gray-200 text-center text-slate-400 font-medium shadow-sm animate-pulse">
-                Syncing with secure transaction databanks...
+                Syncing with secure transaction databanks.
               </div>
             ) : (
               <ExpenseTable 
@@ -81,6 +95,7 @@ function App() {
                 totalExpense={currentTotalExpense} 
                 isOverBudget={isOverBudget} 
                 onAddExpense={handleAddExpense}
+                onDeleteExpense={handleDeleteExpense} 
               />
             )}
           </div>

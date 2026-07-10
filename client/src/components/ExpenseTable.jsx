@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { FaCalendarAlt, FaEdit, FaTrash, FaPlus, FaTimes } from "react-icons/fa";
 
-export default function ExpenseTable({ expenses, totalExpense, isOverBudget, onAddExpense }) {
+export default function ExpenseTable({ expenses, totalExpense, isOverBudget, onAddExpense ,onDeleteExpense}) {
   // Modal toggle state control
   const [isModalOpen, setIsModalOpen] = useState(false);
   
@@ -90,7 +90,7 @@ export default function ExpenseTable({ expenses, totalExpense, isOverBudget, onA
           
           <tbody className="divide-y divide-gray-100 text-sm font-medium text-slate-700">
             {expenses.map((expense) => (
-              <tr key={expense.id} className="hover:bg-gray-50/70 transition-colors duration-150 group">
+              <tr key={expense._id} className="hover:bg-gray-50/70 transition-colors duration-150 group">
                 <td className="py-4 px-4">
                   <div className="font-semibold text-slate-900">{expense.title}</div>
                   <div className="text-[11px] text-slate-400 font-medium sm:hidden mt-0.5">
@@ -117,7 +117,11 @@ export default function ExpenseTable({ expenses, totalExpense, isOverBudget, onA
                     <button className="p-2 rounded-lg border border-gray-200 bg-white text-slate-500 hover:text-blue-600 hover:border-blue-200 transition-all duration-150 shadow-sm">
                       <FaEdit size={13} />
                     </button>
-                    <button className="p-2 rounded-lg border border-gray-200 bg-white text-slate-500 hover:text-rose-600 hover:border-rose-200 transition-all duration-150 shadow-sm">
+                    <button 
+                      onClick={() => onDeleteExpense(expense._id)}
+                      title="Delete Transaction"
+                      className="p-2 rounded-lg border border-gray-200 bg-white text-slate-500 hover:text-rose-600 hover:border-rose-200 transition-all duration-150 shadow-sm"
+                    >
                       <FaTrash size={13} />
                     </button>
                   </div>
@@ -179,7 +183,7 @@ export default function ExpenseTable({ expenses, totalExpense, isOverBudget, onA
                   value={category} onChange={(e) => setCategory(e.target.value)}
                   className="w-full px-3.5 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-slate-700 focus:bg-white focus:border-blue-500 transition-all outline-none appearance-none"
                 >
-                  <option value="Software">Software</option>
+                  <option value="Investments">Investments</option>
                   <option value="Food & Drinks">Food & Drinks</option>
                   <option value="Health">Health</option>
                   <option value="Entertainment">Entertainment</option>
