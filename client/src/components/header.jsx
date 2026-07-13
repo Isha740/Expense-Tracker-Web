@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import {
   FaUserCircle,
+  FaSignOutAlt,
 } from "react-icons/fa";
 import { HiWallet } from "react-icons/hi2";
 
-export default function Header() {
+// 1. ADD PROPS ACCESSIBILITY PIPELINE HASH STREAMS
+export default function Header({ userName, userEmail, onLogout }) {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   // Dynamic time-based content layout
@@ -17,11 +19,23 @@ export default function Header() {
     greeting = "Good Afternoon 🌤️";
   }
 
+  // Helper Function: Derives profile avatar initials dynamically (e.g., "John Doe" -> "JD")
+  const getInitials = (name) => {
+    if (!name) return "U";
+    const parts = name.trim().split(" ");
+    if (parts.length > 1) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return parts[0].substring(0, 2).toUpperCase();
+  };
+
+  const userInitials = getInitials(userName);
+
   return (
     <header className="sticky top-0 z-50 backdrop-blur-xl bg-slate-50/80 border-b border-slate-200 select-none">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
         
-        {/*3-Column Grid Layout */}
+        {/* 3-Column Grid Layout */}
         <div className="grid grid-cols-2 md:grid-cols-3 items-center gap-4">
 
           <div className="flex items-center gap-3.5 justify-self-start">
@@ -38,10 +52,10 @@ export default function Header() {
             </div>
           </div>
 
-          {/* CENTER COLUMN: Centralized Contextual Greeting */}
+          {/* CENTER COLUMN: Centralized Contextual Greeting (Updated dynamically) */}
           <div className="hidden md:flex flex-col items-center justify-center text-center">
             <h2 className="text-lg font-bold text-slate-800 tracking-wide">
-              {greeting}, Isha
+              {greeting}, {userName || "User"}
             </h2>
             <p className="text-xs text-slate-500 font-medium mt-0.5">
               Every Expense. Every Insight.
@@ -59,45 +73,53 @@ export default function Header() {
                 aria-haspopup="true"
                 aria-expanded={isProfileOpen}
               >
-                {/* Matches the vibrant gradient profiles/charts from the visual reference */}
+                {/* Dynamically computes avatar text markers */}
                 <div className="h-10 w-10 rounded-xl bg-gradient-to-tr from-blue-500 to-cyan-400 flex items-center justify-center text-white font-bold shadow-sm">
-                  IJ
+                  {userInitials}
                 </div>
 
                 <div className="hidden lg:block text-left">
                   <p className="text-sm font-bold text-slate-800 leading-none">
-                    Isha Jain
+                    {userName}
                   </p>
                 </div>
               </button>
 
-              {/* Dropdown Menu Subtree - Clean Light Mode variant */}
+              {/* Dropdown Menu Subtree */}
               {isProfileOpen && (
                 <div className="absolute right-0 mt-3 w-64 rounded-2xl bg-white border border-slate-200 shadow-xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-150">
                   <div className="px-4 py-4 border-b border-slate-100 bg-slate-50/50">
                     <div className="flex items-center gap-3">
                       <div className="h-10 w-10 rounded-xl bg-gradient-to-tr from-blue-500 to-cyan-400 flex items-center justify-center text-white font-bold">
-                        IJ
+                        {userInitials}
                       </div>
                       <div>
-                        <p className="text-sm font-bold text-slate-800">
-                          Isha Jain
+                        <p className="text-sm font-bold text-slate-800 truncate max-w-[160px]">
+                          {userName}
                         </p>
-                        <p className="text-xs text-slate-400 font-medium truncate max-w-[150px]">
-                          isha@example.com
+                        <p className="text-xs text-slate-400 font-medium truncate max-w-[160px]">
+                          {userEmail}
                         </p>
                       </div>
                     </div>
                   </div>
 
-                  <button className="w-full px-4 py-3 text-left text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition flex items-center gap-3">
+                  <button className="w-full px-4 py-3 text-left text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition flex items-center gap-3 focus:outline-none">
                     <FaUserCircle className="text-slate-400" size={16} />
                     Profile Settings
                   </button>
 
                   <div className="border-t border-slate-100"></div>
 
-                  <button className="w-full px-4 py-3 text-left text-sm font-semibold text-red-500 hover:bg-red-50 transition">
+                  {/* 2. BOUND LOGOUT INTERCEPT ACTIONS ROUTE */}
+                  <button 
+                    onClick={() => {
+                      setIsProfileOpen(false);
+                      onLogout();
+                    }}
+                    className="w-full px-4 py-3 text-left text-sm font-bold text-red-500 hover:bg-red-50 transition flex items-center gap-3 focus:outline-none"
+                  >
+                    <FaSignOutAlt size={14} />
                     Sign Out
                   </button>
                 </div>

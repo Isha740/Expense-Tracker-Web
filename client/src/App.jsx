@@ -1,10 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import Header from "./components/Header";
 import ExpenseTable from "./components/ExpenseTable";
 import BudgetLimitCard from "./components/BudgetLimitCard";
 import AnalyticsCharts from "./components/AnalyticsCharts";
+import AuthScreen from "./components/AuthScreen";
+import { AuthContext } from "./context/AuthContext";
 
 function App() {
+  const { user, authLoading, logoutUser } = useContext(AuthContext); // Access global user context status
+  
   const [expenses, setExpenses] = useState([]);
   const [limit, setLimit] = useState(0);
   const [historicalData, setHistoricalData] = useState([]);
@@ -23,28 +27,30 @@ function App() {
   const SUMMARY_API = "http://localhost:5000/api/expenses/monthly-summary";
   const METRICS_API = "http://localhost:5000/api/expenses/dashboard-metrics";
 
+  const getAuthHeaders = () => ({
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${user?.token}`,
+  });
+
   const synchronizeDashboardData = async () => {
+    if (!user) return; // Block fetch calls if unauthenticated
     try {
       const [expenseRes, budgetRes, summaryRes, metricsRes] = await Promise.all([
-        fetch(EXPENSE_API),
-        fetch(BUDGET_API),
-        fetch(SUMMARY_API),
-        fetch(METRICS_API)
+        fetch(EXPENSE_API, { headers: getAuthHeaders() }),
+        fetch(BUDGET_API, { headers: getAuthHeaders() }),
+        fetch(SUMMARY_API, { headers: getAuthHeaders() }),
+        fetch(METRICS_API, { headers: getAuthHeaders() })
       ]);
 
       if (!expenseRes.ok || !budgetRes.ok || !summaryRes.ok || !metricsRes.ok) {
         throw new Error("Failed to clear data synchronization endpoints");
       }
 
-      const expenseData = await expenseRes.json();
+      setExpenses(await expenseRes.json());
       const budgetData = await budgetRes.json();
-      const summaryData = await summaryRes.json();
-      const metricsData = await metricsRes.json();
-
-      setExpenses(expenseData);
       setLimit(budgetData.amount || 0);
-      setHistoricalData(summaryData);
-      setMetrics(metricsData); 
+      setHistoricalData(await summaryRes.json());
+      setMetrics(await metricsRes.json()); 
     } catch (error) {
       console.error("Critical Databank sync failure:", error.message);
     } finally {
@@ -52,20 +58,21 @@ function App() {
     }
   };
 
+  // Re-run the fetch pipeline whenever a user logs in
   useEffect(() => {
-    synchronizeDashboardData();
-  }, []);
+    if (user) {
+      synchronizeDashboardData();
+    }
+  }, [user]);
 
   const handleAddExpense = async (newExpense) => {
     try {
       const response = await fetch(EXPENSE_API, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: getAuthHeaders(),
         body: JSON.stringify(newExpense),
       });
-
       if (!response.ok) throw new Error("Failed to write document to database");
-      
       synchronizeDashboardData();
     } catch (error) {
       console.error("API Post failure:", error.message);
@@ -74,9 +81,11 @@ function App() {
 
   const handleDeleteExpense = async (_id) => {
     try {
-      const response = await fetch(`${EXPENSE_API}/${_id}`, { method: "DELETE" });
+      const response = await fetch(`${EXPENSE_API}/${_id}`, { 
+        method: "DELETE",
+        headers: getAuthHeaders()
+      });
       if (!response.ok) throw new Error("Failed to clear transaction from data cluster");
-      
       synchronizeDashboardData();
     } catch (error) {
       console.error("API Delete pipeline failure:", error.message);
@@ -87,17 +96,14 @@ function App() {
     try {
       const response = await fetch("http://localhost:5000/api/budget", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: getAuthHeaders(),
         body: JSON.stringify({ amount: amountValue }),
       });
-
       const data = await response.json();
-
       if (!response.ok) {
         alert(data.message);
         return false;
       }
-
       setLimit(data.amount);
       synchronizeDashboardData();
       return true;
@@ -110,17 +116,32 @@ function App() {
   const currentTotalExpense = expenses.reduce((sum, item) => sum + item.amount, 0);
   const isOverBudget = limit > 0 && currentTotalExpense > limit;
 
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center font-bold text-slate-400 animate-pulse">
+        Initializing Secure Gateways.
+      </div>
+    );
+  }
+
+  // If no user context token exists, lock UI out and display login view
+  if (!user) {
+    return <AuthScreen />;
+  }
+
   return (
     <div className="bg-gray-100 min-h-screen text-slate-800 font-sans antialiased pb-12">
-      <Header />
+      {/* Pass user profile context variables and logout happens onto header element */}
+      <Header userName={user.name} userEmail={user.email} onLogout={logoutUser} />
 
       <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8 space-y-6">
         
+        {/* Real time Dynamic Summary row grid layout */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm">
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Number of transactions</p>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Ledger Volume</p>
             <p className="text-2xl font-black text-slate-900 mt-1">
-              {metrics.totalVolumeCount} <span className="text-xs font-medium text-slate-400">Transactions</span>
+              {metrics.totalVolumeCount} <span className="text-xs font-medium text-slate-400">Txns</span>
             </p>
           </div>
           

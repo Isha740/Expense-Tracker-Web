@@ -39,19 +39,18 @@ export default function AnalyticsCharts({ currentExpenses, historyData }) {
   };
 
   return (
-    /* Side-by-Side Flex Layout stretching symmetrically below your main ledger */
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       
       {/* LEFT CHART: PieChart Category Breakdown */}
       <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex flex-col h-[350px]">
         <div>
-          <h4 className="text-sm font-bold text-slate-900 tracking-wide">Allocation Mix</h4>
-          <p className="text-[11px] text-slate-500 font-medium">Percentage distribution by structural expense category.</p>
+          <h4 className="text-sm font-bold text-slate-900 tracking-wide">Category-wise expense</h4>
+          <p className="text-[11px] text-slate-500 font-medium">Percentage distribution.</p>
         </div>
         
         <div className="flex-1 min-h-0 mt-2">
           {pieData.length === 0 ? (
-            <div className="h-full flex items-center justify-center text-xs text-slate-400">No active data streams logged.</div>
+            <div className="h-full flex items-center justify-center text-xs text-slate-400">No active data saved.</div>
           ) : (
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -79,11 +78,11 @@ export default function AnalyticsCharts({ currentExpenses, historyData }) {
         </div>
       </div>
 
-      {/* RIGHT CHART: Expense tracking Multi-Month Bar Graph for every month*/}
+      {/* RIGHT CHART: Expense tracking Multi Month Bar Graph for every month*/}
       <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex flex-col h-[350px]">
         <div>
-          <h4 className="text-sm font-bold text-slate-900 tracking-wide">Macro Horizon Ledger</h4>
-          <p className="text-[11px] text-slate-500 font-medium">Year-to-date analysis. <span className="text-rose-500 font-semibold">Red</span> indicates breached thresholds.</p>
+          <h4 className="text-sm font-bold text-slate-900 tracking-wide">Year-wise Bar graph display</h4>
+          <p className="text-[11px] text-slate-500 font-medium">Year to date analysis. <span className="text-rose-500 font-semibold">Red</span> indicates crossed limits.</p>
         </div>
 
         <div className="flex-1 min-h-0 mt-4">
@@ -96,7 +95,7 @@ export default function AnalyticsCharts({ currentExpenses, historyData }) {
                 formatter={(value, name, props) => [`₹${value.toLocaleString("en-IN")} / ${props.payload.limit > 0 ? `₹${props.payload.limit.toLocaleString("en-IN")}` : "No Limit set"}`, "Spent / Limit"]}
                 contentStyle={{ backgroundColor: "#0f172a", borderRadius: "12px", border: "none", color: "#f8fafc", fontSize: "12px" }}
               />
-              {/* Dynamic Mapping: Evaluates if spending crossed limits to assign color nodes */}
+
               <Bar dataKey="expenses" radius={[6, 6, 0, 0]} maxBarSize={32} label={renderCustomBarLabel}>
                 {historyData.map((entry, index) => {
                   const exceeded = entry.limit > 0 && entry.expenses > entry.limit;

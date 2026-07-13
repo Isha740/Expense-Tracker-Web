@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { FaCalendarAlt, FaEdit, FaTrash, FaPlus, FaTimes } from "react-icons/fa";
 
 export default function ExpenseTable({ expenses, totalExpense, isOverBudget, onAddExpense ,onDeleteExpense}) {
-  // Modal toggle state control
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
   
   // Controlled input states for form processing
@@ -17,7 +17,6 @@ export default function ExpenseTable({ expenses, totalExpense, isOverBudget, onA
     e.preventDefault();
     if (!title || !amount || parseFloat(amount) <= 0 || !date) return;
 
-    // Package the user data into our schema block template format
     const newExpense = {
       id: Date.now().toString(), // Generates an instant temp tracking string timestamp
       title,
@@ -51,17 +50,16 @@ export default function ExpenseTable({ expenses, totalExpense, isOverBudget, onA
                 Your expenses in <span className="text-blue-600">{currentMonth}</span>
               </h3>
               <p className="text-xs text-slate-500 font-medium mt-0.5">
-                Detailed breakdown of your current billing cycle logs.
+                Detailed breakdown of your current billing cycle records.
               </p>
             </div>
             
-            {/* Grade Action Trigger: Add Button aligned perfectly inside header line */}
             <button
               onClick={() => setIsModalOpen(true)}
               className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-sm hover:shadow transition-all self-start sm:self-center"
             >
               <FaPlus size={10} />
-              New Expense
+              Add Expense
             </button>
           </div>
           
@@ -77,7 +75,7 @@ export default function ExpenseTable({ expenses, totalExpense, isOverBudget, onA
         </div>
       </div>
 
-      {/* Table Interface Viewport with strict height boundaries and internal scrolling mechanisms */}
+      {/* Table Interface with strict height boundaries and internal scrolling mechanisms */}
       <div className="overflow-x-auto max-h-[400px] overflow-y-auto custom-scrollbar">
         <table className="w-full text-left border-collapse">
           <thead>
@@ -134,10 +132,10 @@ export default function ExpenseTable({ expenses, totalExpense, isOverBudget, onA
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
           
-          {/* Modal Input Window panel */}
+          {/* Modal Input Window */}
           <div className="bg-white rounded-2xl border border-gray-200 shadow-2xl w-full max-w-md overflow-hidden p-6 relative animate-in fade-in slide-in-from-bottom-4 duration-300">
             
-            {/* Close Button Anchor */}
+            {/* Close Button*/}
             <button 
               onClick={() => setIsModalOpen(false)}
               className="absolute right-4 top-4 p-2 text-slate-400 hover:text-slate-600 hover:bg-gray-100 rounded-xl transition-all duration-150"
@@ -146,16 +144,17 @@ export default function ExpenseTable({ expenses, totalExpense, isOverBudget, onA
             </button>
 
             <div className="mb-5">
-              <h4 className="text-base font-bold text-slate-900">Record Transaction</h4>
-              <p className="text-xs text-slate-500 font-medium mt-0.5">Log a fresh expenditure onto the database file.</p>
+              <h4 className="text-base font-bold text-slate-900">New Transaction</h4>
+              <p className="text-xs text-slate-500 font-medium mt-0.5">Record a new expenditure.</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Description</label>
                 <input 
-                  type="text" placeholder="e.g., AWS Cloud Hosting" value={title} onChange={(e) => setTitle(e.target.value)}
+                  type="text" placeholder="e.g., Vegetable Purchase" value={title} onChange={(e) => setTitle(e.target.value)}
                   className="w-full px-3.5 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-slate-800 placeholder-gray-400 focus:bg-white focus:border-blue-500 transition-all outline-none"
+                  required
                 />
               </div>
 
@@ -165,6 +164,7 @@ export default function ExpenseTable({ expenses, totalExpense, isOverBudget, onA
                   <input 
                     type="number" placeholder="0.00" value={amount} onChange={(e) => setAmount(e.target.value)}
                     className="w-full px-3.5 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-slate-800 placeholder-gray-400 focus:bg-white focus:border-blue-500 transition-all outline-none"
+                    required
                   />
                 </div>
                 <div>
@@ -187,7 +187,10 @@ export default function ExpenseTable({ expenses, totalExpense, isOverBudget, onA
                   <option value="Food & Drinks">Food & Drinks</option>
                   <option value="Health">Health</option>
                   <option value="Entertainment">Entertainment</option>
-                  <option value="General">General</option>
+                  <option value="Other">Other</option>
+                  <option value="Utilities">Utilities</option>
+                  <option value="Education">Education</option>
+                  <option value="Shopping">Shopping</option>
                 </select>
               </div>
 

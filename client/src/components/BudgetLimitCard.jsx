@@ -14,7 +14,6 @@ export default function BudgetLimitCard({ limit, onSetLimit, currentTotalExpense
 
   const percentSpent = limit ? Math.min((currentTotalExpense / limit) * 100, 100) : 0;
 
-  // The view branches purely on whether limit exists inside MongoDB (limit > 0)
   const isLimitAlreadySetInDb = limit > 0;
 
   return (
@@ -28,14 +27,14 @@ export default function BudgetLimitCard({ limit, onSetLimit, currentTotalExpense
             </div>
             <div>
               <h3 className="text-base font-bold text-slate-900">Expense Control</h3>
-              <p className="text-xs text-slate-500 font-medium">Set your threshold for {currentMonth}.</p>
+              <p className="text-xs text-slate-500 font-medium">Set your limit for {currentMonth}.</p>
             </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label htmlFor="budget-limit" className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
-                Monthly Cap Amount (₹)
+                Monthly max spending Amount (₹)
               </label>
               <div className="relative">
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-semibold text-sm">₹</span>
@@ -64,11 +63,10 @@ export default function BudgetLimitCard({ limit, onSetLimit, currentTotalExpense
                 {currentMonth} Budget Status
               </span>
             </div>
-            {/* The edit pencil button has been removed, satisfying the lock policy rule */}
           </div>
 
           <div className="space-y-1 mb-5">
-            <p className="text-xs text-slate-500 font-medium leading-none">Configured Cap</p>
+            <p className="text-xs text-slate-500 font-medium leading-none">Crossover Limit</p>
             <p className="text-3xl font-black text-slate-900 tracking-tight">
               ₹{limit.toLocaleString("en-IN")}
               <span className="text-xs text-slate-400 font-semibold ml-1.5">/ mo</span>
@@ -97,7 +95,7 @@ export default function BudgetLimitCard({ limit, onSetLimit, currentTotalExpense
             {isOverBudget && (
               <div className="flex items-center gap-2 text-rose-600 bg-rose-50 border border-rose-100 rounded-xl p-2.5 mt-3 text-xs font-semibold animate-pulse">
                 <FaExclamationTriangle className="flex-shrink-0" />
-                <span>Cap breached! Reduce discretionary overhead.</span>
+                <span>Limit crossed!</span>
               </div>
             )}
           </div>
