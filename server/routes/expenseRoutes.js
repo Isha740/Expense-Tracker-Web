@@ -4,6 +4,59 @@ import Budget from "../models/Budget.js";
 
 const router = express.Router();
 
+router.get("/dashboard-metrics", async (req, res) => {
+  try {
+    const currentYear = new Date().getFullYear();
+    const currentMonthLong = new Date().toLocaleString("default", { month: "long" });
+    const currentMonthYearStr = new Date().toLocaleString("default", { month: "long", year: "numeric" }); // "July 2026"
+
+    const expenses = await Expense.find();
+    
+    // 1. Total Multi-Month Volume
+    const totalVolumeCount = expenses.length;
+
+    // 2. Total Current Monthly Spend
+    let currentMonthSpend = 0;
+    let categoryMap = {};
+
+    expenses.forEach((item) => {
+      if (!item.date) return;
+      const d = new Date(item.date);
+      if (!isNaN(d) && d.getFullYear() === currentYear) {
+        if (d.toLocaleString("default", { month: "long" }) === currentMonthLong) {
+          currentMonthSpend += item.amount;
+        }
+        categoryMap[item.category] = (categoryMap[item.category] || 0) + item.amount;
+      }
+    });
+
+    // 3. Most Expensive Category Card
+    let mostExpensiveCategory = "None";
+    let maxCatAmount = 0;
+    Object.keys(categoryMap).forEach((cat) => {
+      if (categoryMap[cat] > maxCatAmount) {
+        maxCatAmount = categoryMap[cat];
+        mostExpensiveCategory = cat;
+      }
+    });
+
+    // 4. Remaining Safe Balance Calculation
+    const activeBudget = await Budget.findOne({ monthYear: currentMonthYearStr });
+    const currentLimit = activeBudget ? activeBudget.amount : 0;
+    const remainingSafeBalance = currentLimit > 0 ? Math.max(currentLimit - currentMonthSpend, 0) : 0;
+
+    res.status(200).json({
+      totalVolumeCount,
+      currentMonthSpend,
+      mostExpensiveCategory: mostExpensiveCategory !== "None" ? `${mostExpensiveCategory} (₹${maxCatAmount})` : "None",
+      remainingSafeBalance,
+      currentLimit
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to compile metric calculations", error: error.message });
+  }
+});
+
 router.get("/monthly-summary", async (req, res) => {
   try {
     const currentYear = new Date().getFullYear(); // Dynamically isolates the current tracking year (2026)

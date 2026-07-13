@@ -5,36 +5,46 @@ import BudgetLimitCard from "./components/BudgetLimitCard";
 import AnalyticsCharts from "./components/AnalyticsCharts";
 
 function App() {
- 
   const [expenses, setExpenses] = useState([]);
   const [limit, setLimit] = useState(0);
   const [historicalData, setHistoricalData] = useState([]);
   const [loading, setLoading] = useState(true);
+  
+  const [metrics, setMetrics] = useState({
+    totalVolumeCount: 0,
+    currentMonthSpend: 0,
+    mostExpensiveCategory: "None",
+    remainingSafeBalance: 0,
+    currentLimit: 0
+  });
 
   const EXPENSE_API = "http://localhost:5000/api/expenses";
   const BUDGET_API = "http://localhost:5000/api/budget/current";
   const SUMMARY_API = "http://localhost:5000/api/expenses/monthly-summary";
+  const METRICS_API = "http://localhost:5000/api/expenses/dashboard-metrics";
 
-  const fetchInitialData = async () => {
+  const synchronizeDashboardData = async () => {
     try {
-      setLoading(true);
-      const [expenseRes, budgetRes, summaryRes] = await Promise.all([
+      const [expenseRes, budgetRes, summaryRes, metricsRes] = await Promise.all([
         fetch(EXPENSE_API),
         fetch(BUDGET_API),
-        fetch(SUMMARY_API)
+        fetch(SUMMARY_API),
+        fetch(METRICS_API)
       ]);
 
-      if (!expenseRes.ok || !budgetRes.ok || !summaryRes.ok) {
+      if (!expenseRes.ok || !budgetRes.ok || !summaryRes.ok || !metricsRes.ok) {
         throw new Error("Failed to clear data synchronization endpoints");
       }
 
       const expenseData = await expenseRes.json();
       const budgetData = await budgetRes.json();
       const summaryData = await summaryRes.json();
+      const metricsData = await metricsRes.json();
 
       setExpenses(expenseData);
       setLimit(budgetData.amount || 0);
       setHistoricalData(summaryData);
+      setMetrics(metricsData); 
     } catch (error) {
       console.error("Critical Databank sync failure:", error.message);
     } finally {
@@ -43,7 +53,7 @@ function App() {
   };
 
   useEffect(() => {
-    fetchInitialData();
+    synchronizeDashboardData();
   }, []);
 
   const handleAddExpense = async (newExpense) => {
@@ -56,7 +66,7 @@ function App() {
 
       if (!response.ok) throw new Error("Failed to write document to database");
       
-      fetchInitialData();
+      synchronizeDashboardData();
     } catch (error) {
       console.error("API Post failure:", error.message);
     }
@@ -64,12 +74,12 @@ function App() {
 
   const handleDeleteExpense = async (_id) => {
     try {
-      const response = await fetch(`${EXPENSE_API}/${_id}`, {method: "DELETE" });
+      const response = await fetch(`${EXPENSE_API}/${_id}`, { method: "DELETE" });
       if (!response.ok) throw new Error("Failed to clear transaction from data cluster");
-      setExpenses((prevExpenses) => prevExpenses.filter((item) => item._id !== _id));
-      fetchInitialData();
+      
+      synchronizeDashboardData();
     } catch (error) {
-      console.error("API Delete processing pipeline failure:", error.message);
+      console.error("API Delete pipeline failure:", error.message);
     }
   };
 
@@ -89,14 +99,13 @@ function App() {
       }
 
       setLimit(data.amount);
-      fetchInitialData();
+      synchronizeDashboardData();
       return true;
     } catch (error) {
       console.error(error);
       return false;
     }
   };
-  
    
   const currentTotalExpense = expenses.reduce((sum, item) => sum + item.amount, 0);
   const isOverBudget = limit > 0 && currentTotalExpense > limit;
@@ -107,12 +116,39 @@ function App() {
 
       <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8 space-y-6">
         
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm">
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Number of transitions</p>
+            <p className="text-2xl font-black text-slate-900 mt-1">
+              {metrics.totalVolumeCount} <span className="text-xs font-medium text-slate-400">Transitions</span>
+            </p>
+          </div>
+          
+          <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm">
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Monthly Spend</p>
+            <p className="text-2xl font-black text-rose-600 mt-1">
+              ₹{metrics.currentMonthSpend.toLocaleString("en-IN")}
+            </p>
+          </div>
+          
+          <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm">
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Remaining Balance</p>
+            <p className={`text-2xl font-black mt-1 ${metrics.remainingSafeBalance === 0 && metrics.currentLimit > 0 ? "text-rose-500" : "text-emerald-500"}`}>
+              ₹{metrics.remainingSafeBalance.toLocaleString("en-IN")}
+            </p>
+          </div>
+          
+          <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm">
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Top Cash Drain</p>
+            <p className="text-sm font-bold text-slate-700 mt-2 truncate">{metrics.mostExpensiveCategory}</p>
+          </div>
+        </div>
+      
         <section aria-label="Dashboard Analytics Core">
           <AnalyticsCharts currentExpenses={expenses} historyData={historicalData} />
         </section>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-          
           <div className="lg:col-span-2">
             {loading ? (
               <div className="bg-white p-12 rounded-2xl border border-gray-200 text-center text-slate-400 font-medium shadow-sm animate-pulse">
