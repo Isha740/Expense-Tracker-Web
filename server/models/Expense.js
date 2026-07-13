@@ -30,8 +30,9 @@ const expenseSchema = new mongoose.Schema(
         validator: function (value) {
           const inputDate = new Date(value);
           const today = new Date();
+          const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
           today.setHours(23, 59, 59, 999); 
-          return inputDate <= today;
+          return inputDate >= startOfMonth && inputDate <= today;
         },
         message: "Please select a valid date for the transaction."
       }

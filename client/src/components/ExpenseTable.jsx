@@ -35,7 +35,11 @@ export default function ExpenseTable({ expenses, totalExpense, isOverBudget, onA
     setIsModalOpen(false);
   };
 
-  const todayStr = new Date().toISOString().split("T")[0];
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, "0");
+  const startOfMonthStr = `${yyyy}-${mm}-01`;            // Dynamically evaluates to start of current month
+  const todayStr = today.toISOString().split("T")[0];    // Dynamically evaluates to current day's date
 
   return (
     <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden h-full relative">
@@ -170,7 +174,7 @@ export default function ExpenseTable({ expenses, totalExpense, isOverBudget, onA
                 <div>
                   <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Date</label>
                   <input 
-                    type="date" value={date} max={todayStr} onChange={(e) => setDate(e.target.value)}
+                    type="date" value={date} min={startOfMonthStr} max={todayStr} onChange={(e) => setDate(e.target.value)}
                     className="w-full px-3.5 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-slate-700 focus:bg-white focus:border-blue-500 transition-all outline-none"
                     required
                   />
