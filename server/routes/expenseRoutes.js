@@ -1,16 +1,17 @@
 import express from "express";
 import Expense from "../models/Expense.js";
 import Budget from "../models/Budget.js";
+import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.get("/dashboard-metrics", async (req, res) => {
+router.get("/dashboard-metrics", protect, async (req, res) => {
   try {
     const currentYear = new Date().getFullYear();
     const currentMonthLong = new Date().toLocaleString("default", { month: "long" });
     const currentMonthYearStr = new Date().toLocaleString("default", { month: "long", year: "numeric" }); // "July 2026"
 
-    const expenses = await Expense.find();
+    const expenses = await Expense.find({ user: req.user._id });
     
     // 1. Total Multi-Month Volume
     const totalVolumeCount = expenses.length;
@@ -41,7 +42,7 @@ router.get("/dashboard-metrics", async (req, res) => {
     });
 
     // 4. Remaining Safe Balance Calculation
-    const activeBudget = await Budget.findOne({ monthYear: currentMonthYearStr });
+    const activeBudget = await Budget.findOne({ monthYear: currentMonthYearStr ,user: req.user._id});
     const currentLimit = activeBudget ? activeBudget.amount : 0;
     const remainingSafeBalance = currentLimit > 0 ? Math.max(currentLimit - currentMonthSpend, 0) : 0;
 
@@ -57,12 +58,12 @@ router.get("/dashboard-metrics", async (req, res) => {
   }
 });
 
-router.get("/monthly-summary", async (req, res) => {
+router.get("/monthly-summary", protect, async (req, res) => {
   try {
     const currentYear = new Date().getFullYear(); // Dynamically isolates the current tracking year (2026)
 
-    const expenses = await Expense.find();
-    const budgets = await Budget.find();
+    const expenses = await Expense.find({ user: req.user._id });
+    const budgets = await Budget.find({ user: req.user._id });
 
     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     
@@ -101,19 +102,19 @@ router.get("/monthly-summary", async (req, res) => {
   }
 });
 
-router.get("/", async (req, res) => {
+router.get("/", protect, async (req, res) => {
   try {
-    const expenses = await Expense.find().sort({ createdAt: -1 });
+    const expenses = await Expense.find({ user: req.user._id }).sort({ createdAt: -1 });
     res.status(200).json(expenses);
   } catch (error) {
     res.status(500).json({ message: "Failed to retrieve transaction logs", error: error.message });
   }
 });
 
-router.post("/", async (req, res) => {
+router.post("/", protect, async (req, res) => {
   try {
     const { title, amount, category, date } = req.body;
-    const newExpense = new Expense({ title, amount, category, date });
+    const newExpense = new Expense({user: req.user._id, title, amount, category, date });
     const savedExpense = await newExpense.save();
     res.status(201).json(savedExpense);
   } catch (error) {
@@ -121,10 +122,10 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", protect, async (req, res) => {
   try {
     const { id } = req.params;
-    const deletedExpense = await Expense.findByIdAndDelete(id);
+    const deletedExpense = await Expense.findByIdAndDelete({ _id: id, user: req.user._id });
 
     if (!deletedExpense) {
       return res.status(404).json({ message: "Transaction record not found" });

@@ -1,13 +1,14 @@
 import express from "express";
 import Budget from "../models/Budget.js";
+import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// 1. FETCH CURRENT MONTH'S BUDGET CONFIGURATION
-router.get("/current", async (req, res) => {
+// 1. Fetch current month's budget
+router.get("/current", protect, async (req, res) => {
   try {
     const currentMonthYear = new Date().toLocaleString("default", { month: "long", year: "numeric" });
-    const budget = await Budget.findOne({ monthYear: currentMonthYear });
+    const budget = await Budget.findOne({user: req.user._id, monthYear: currentMonthYear });
     
     res.status(200).json(budget || { amount: 0, isNotSet: true });
   } catch (error) {
@@ -15,8 +16,8 @@ router.get("/current", async (req, res) => {
   }
 });
 
-// 2. CONFIGURE NEW MONTHLY BUDGET THRESHOLD (WITH STRICT TIME GUARDS)
-router.post("/", async (req, res) => {
+// 2. Configure new monthly budget limits
+router.post("/", protect, async (req, res) => {
   try {
     const { amount } = req.body;
     
@@ -25,7 +26,7 @@ router.post("/", async (req, res) => {
     const currentDay = currentDate.getDate(); 
     const currentMonthYear = currentDate.toLocaleString("default", { month: "long", year: "numeric" });
 
-    // CONDITION 1: Time Perimeter Guard (Only allow settings within the first half of the month)
+    // CONDITION 1: Time restrictions (Only allow settings within the first half of the month)
     if (currentDay > 15) {
       return res.status(403).json({ 
         message: "Operation Denied: Monthly limits can only be set during the first half of the month (Days 1-15)." 
@@ -33,7 +34,7 @@ router.post("/", async (req, res) => {
     }
 
     // CONDITION 2: One month should have only one limit set
-    const existingBudget = await Budget.findOne({ monthYear: currentMonthYear });
+    const existingBudget = await Budget.findOne({ user: req.user._id, monthYear: currentMonthYear });
     if (existingBudget) {
       return res.status(400).json({ 
         message: "Operation Denied: A budget threshold has already been established for this month cycle." 
@@ -41,6 +42,7 @@ router.post("/", async (req, res) => {
     }
 
     const newBudget = new Budget({
+      user: req.user._id,
       amount: parseFloat(amount),
       monthYear: currentMonthYear
     });

@@ -4,6 +4,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import expenseRouter from "./routes/expenseRoutes.js"; // Import router
 import budgetRouter from "./routes/budgetRoutes.js";
+import userRouter from "./routes/userRoutes.js";
 
 dotenv.config();
 
@@ -13,6 +14,9 @@ const PORT = process.env.PORT || 5000;
 // Middleware Points
 app.use(cors());
 app.use(express.json());
+app.use("/api/users", userRouter); // Authentication routes
+app.use("/api/expenses", expenseRouter);
+app.use("/api/budget", budgetRouter);
 
 // Database Initialization
 mongoose

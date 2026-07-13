@@ -2,21 +2,26 @@ import mongoose from "mongoose";
 
 const expenseSchema = new mongoose.Schema(
   {
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true
+    },
     title: {
       type: String,
       required: [true, "Transaction description title is mandatory"],
-      trim: true, 
+      trim: true
     },
     amount: {
       type: Number,
       required: [true, "Transaction numeric amount is mandatory"],
-      min: [0, "Financial debit values cannot be negative numbers"],
+      min: [0, "Financial debit values cannot be negative numbers"]
     },
     category: {
       type: String,
       required: true,
       default: "General",
-      enum: ["Food & Drinks", "Health", "Entertainment","Investments","General"], // Restricts entries to valid tags
+      enum: ["Food & Drinks", "Health", "Entertainment","Investments","Other","Utilities","Education","Shopping"]
     },
     date: {
       type: String,
