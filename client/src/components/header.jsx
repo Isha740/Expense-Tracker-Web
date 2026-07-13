@@ -2,14 +2,14 @@ import React, { useState } from "react";
 import {
   FaUserCircle,
   FaSignOutAlt,
+  FaTimes,
 } from "react-icons/fa";
 import { HiWallet } from "react-icons/hi2";
 
-// 1. ADD PROPS ACCESSIBILITY PIPELINE HASH STREAMS
 export default function Header({ userName, userEmail, onLogout }) {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
-  // Dynamic time-based content layout
+  // Dynamic time based content layout
   const hour = new Date().getHours();
   let greeting = "Good Evening 🌙";
 
@@ -19,7 +19,7 @@ export default function Header({ userName, userEmail, onLogout }) {
     greeting = "Good Afternoon 🌤️";
   }
 
-  // Helper Function: Derives profile avatar initials dynamically (e.g., "John Doe" -> "JD")
+  // Derives profile initials dynamically (e.g., "John Doe" -> "JD")
   const getInitials = (name) => {
     if (!name) return "U";
     const parts = name.trim().split(" ");
@@ -64,16 +64,15 @@ export default function Header({ userName, userEmail, onLogout }) {
 
           {/* RIGHT COLUMN: Profile Control Subsystem */}
           <div className="flex items-center gap-3.5 justify-self-end col-start-2 md:col-start-3">
-            
             {/* Profile Menu Wrapper */}
             <div className="relative">
               <button
-                onClick={() => setIsProfileOpen(!isProfileOpen)}
+                onClick={() => setIsProfileOpen(true)}
                 className="flex items-center gap-3 p-1.5 rounded-xl hover:bg-slate-200/50 border border-transparent hover:border-slate-200 transition-all duration-200 focus:outline-none"
                 aria-haspopup="true"
                 aria-expanded={isProfileOpen}
               >
-                {/* Dynamically computes avatar text markers */}
+                {/* Dynamically computes profile text markers */}
                 <div className="h-10 w-10 rounded-xl bg-gradient-to-tr from-blue-500 to-cyan-400 flex items-center justify-center text-white font-bold shadow-sm">
                   {userInitials}
                 </div>
@@ -85,15 +84,23 @@ export default function Header({ userName, userEmail, onLogout }) {
                 </div>
               </button>
 
-              {/* Dropdown Menu Subtree */}
+              {/* Dropdown Menu*/}
               {isProfileOpen && (
                 <div className="absolute right-0 mt-3 w-64 rounded-2xl bg-white border border-slate-200 shadow-xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-150">
-                  <div className="px-4 py-4 border-b border-slate-100 bg-slate-50/50">
+                  <div className="px-4 py-4 border-b border-slate-100 bg-slate-50/50 relative">
+                    <button
+                      onClick={() => setIsProfileOpen(false)}
+                      className="absolute top-3 right-3 p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-200/60 transition-all outline-none"
+                      aria-label="Close menu"
+                    >
+                      <FaTimes size={12} />
+                    </button>
+
                     <div className="flex items-center gap-3">
                       <div className="h-10 w-10 rounded-xl bg-gradient-to-tr from-blue-500 to-cyan-400 flex items-center justify-center text-white font-bold">
                         {userInitials}
                       </div>
-                      <div>
+                      <div className="pr-4">
                         <p className="text-sm font-bold text-slate-800 truncate max-w-[160px]">
                           {userName}
                         </p>
@@ -104,14 +111,13 @@ export default function Header({ userName, userEmail, onLogout }) {
                     </div>
                   </div>
 
-                  <button className="w-full px-4 py-3 text-left text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition flex items-center gap-3 focus:outline-none">
+                  {/* <button className="w-full px-4 py-3 text-left text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition flex items-center gap-3 focus:outline-none">
                     <FaUserCircle className="text-slate-400" size={16} />
                     Profile Settings
-                  </button>
+                  </button> */}
 
                   <div className="border-t border-slate-100"></div>
 
-                  {/* 2. BOUND LOGOUT INTERCEPT ACTIONS ROUTE */}
                   <button 
                     onClick={() => {
                       setIsProfileOpen(false);

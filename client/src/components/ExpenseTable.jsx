@@ -183,19 +183,40 @@ export default function ExpenseTable({ expenses, totalExpense, isOverBudget, onA
 
               <div>
                 <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Category Group</label>
-                <select 
-                  value={category} onChange={(e) => setCategory(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-slate-700 focus:bg-white focus:border-blue-500 transition-all outline-none appearance-none"
-                >
-                  <option value="Investments">Investments</option>
-                  <option value="Food & Drinks">Food & Drinks</option>
-                  <option value="Health">Health</option>
-                  <option value="Entertainment">Entertainment</option>
-                  <option value="Other">Other</option>
-                  <option value="Utilities">Utilities</option>
-                  <option value="Education">Education</option>
-                  <option value="Shopping">Shopping</option>
-                </select>
+                <div className="relative">
+                  <select 
+                    value={category} onChange={(e) => setCategory(e.target.value)}
+                    className="w-full px-3.5 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-slate-700 focus:bg-white focus:border-blue-500 transition-all cursor-pointer outline-none appearance-none"
+                    required
+                  >
+                    <option value="" disabled hidden>Choose a category</option>
+                    <option value="Food & Drinks">Food & Drinks</option>
+                    <option value="Investments">Investments</option>
+                    <option value="Health">Health</option>
+                    <option value="Entertainment">Entertainment</option>
+                    <option value="Other">Other</option>
+                    <option value="Utilities">Utilities</option>
+                    <option value="Education">Education</option>
+                    <option value="Shopping">Shopping</option>
+                  </select>
+
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400">
+                    <svg 
+                      className="h-4 w-4 transition-transform duration-200" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round" 
+                        strokeWidth="2.5" 
+                        d="M19 9l-7 7-7-7" 
+                      />
+                    </svg>
+                  </div>
+                </div>
+                
               </div>
 
               <div className="flex items-center gap-3 mt-6">

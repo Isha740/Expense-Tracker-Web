@@ -31,7 +31,7 @@ router.get("/dashboard-metrics", protect, async (req, res) => {
       }
     });
 
-    // 3. Most Expensive Category Card
+    // 3. Most Expensive Category
     let mostExpensiveCategory = "None";
     let maxCatAmount = 0;
     Object.keys(categoryMap).forEach((cat) => {
@@ -54,13 +54,13 @@ router.get("/dashboard-metrics", protect, async (req, res) => {
       currentLimit
     });
   } catch (error) {
-    res.status(500).json({ message: "Failed to compile metric calculations", error: error.message });
+    res.status(500).json({ message: "Failed to compile summary calculations", error: error.message });
   }
 });
 
 router.get("/monthly-summary", protect, async (req, res) => {
   try {
-    const currentYear = new Date().getFullYear(); // Dynamically isolates the current tracking year (2026)
+    const currentYear = new Date().getFullYear(); // Dynamically isolates the current tracking year
 
     const expenses = await Expense.find({ user: req.user._id });
     const budgets = await Budget.find({ user: req.user._id });
@@ -98,7 +98,7 @@ router.get("/monthly-summary", protect, async (req, res) => {
     
     res.status(200).json(finalChartArray);
   } catch (error) {
-    res.status(500).json({ message: "Failed to generate monthly tracking logs", error: error.message });
+    res.status(500).json({ message: "Failed to generate monthly tracking records", error: error.message });
   }
 });
 
@@ -107,7 +107,7 @@ router.get("/", protect, async (req, res) => {
     const expenses = await Expense.find({ user: req.user._id }).sort({ createdAt: -1 });
     res.status(200).json(expenses);
   } catch (error) {
-    res.status(500).json({ message: "Failed to retrieve transaction logs", error: error.message });
+    res.status(500).json({ message: "Failed to retrieve transaction records", error: error.message });
   }
 });
 

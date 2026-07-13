@@ -5,20 +5,20 @@ const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, "Name profile marker is mandatory"],
+      required: [true, "Profile name is required"],
       trim: true,
     },
     email: {
       type: String,
-      required: [true, "Email verification indicator is mandatory"],
+      required: [true, "Email is required"],
       unique: true,
       lowercase: true,
       trim: true,
     },
     password: {
       type: String,
-      required: [true, "Secure access passcode is mandatory"],
-      minlength: [6, "Passcode length must surpass 6 characters"],
+      required: [true, "Secure access password is mandatory"],
+      minlength: [6, "Password length must be atleast 6 characters"],
     },
   },
   { timestamps: true }

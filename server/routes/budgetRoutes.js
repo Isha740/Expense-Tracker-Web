@@ -21,7 +21,7 @@ router.post("/", protect, async (req, res) => {
   try {
     const { amount } = req.body;
     
-    // Core Temporal Logic Engagements
+    // Core Logic Engagements
     const currentDate = new Date();
     const currentDay = currentDate.getDate(); 
     const currentMonthYear = currentDate.toLocaleString("default", { month: "long", year: "numeric" });
@@ -37,7 +37,7 @@ router.post("/", protect, async (req, res) => {
     const existingBudget = await Budget.findOne({ user: req.user._id, monthYear: currentMonthYear });
     if (existingBudget) {
       return res.status(400).json({ 
-        message: "Operation Denied: A budget threshold has already been established for this month cycle." 
+        message: "Operation Denied: A budget limit has already been added for this month." 
       });
     }
 
