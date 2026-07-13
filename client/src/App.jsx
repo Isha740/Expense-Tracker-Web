@@ -139,14 +139,14 @@ function App() {
         {/* Real time Dynamic Summary row grid layout */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm">
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Ledger Volume</p>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Transactions</p>
             <p className="text-2xl font-black text-slate-900 mt-1">
-              {metrics.totalVolumeCount} <span className="text-xs font-medium text-slate-400">Txns</span>
+              {metrics.totalVolumeCount} <span className="text-xs font-medium text-slate-400">Transactions</span>
             </p>
           </div>
           
           <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm">
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Monthly Spend</p>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Spent Till Now</p>
             <p className="text-2xl font-black text-rose-600 mt-1">
               ₹{metrics.currentMonthSpend.toLocaleString("en-IN")}
             </p>
@@ -160,7 +160,7 @@ function App() {
           </div>
           
           <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm">
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Top Cash Drain</p>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Category with max expenditure</p>
             <p className="text-sm font-bold text-slate-700 mt-2 truncate">{metrics.mostExpensiveCategory}</p>
           </div>
         </div>
