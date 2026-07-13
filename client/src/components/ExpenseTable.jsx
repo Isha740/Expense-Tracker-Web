@@ -36,6 +36,8 @@ export default function ExpenseTable({ expenses, totalExpense, isOverBudget, onA
     setIsModalOpen(false);
   };
 
+  const todayStr = new Date().toISOString().split("T")[0];
+
   return (
     <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden h-full relative">
       
@@ -114,9 +116,6 @@ export default function ExpenseTable({ expenses, totalExpense, isOverBudget, onA
                 
                 <td className="py-4 px-6">
                   <div className="flex items-center justify-center gap-2">
-                    <button className="p-2 rounded-lg border border-gray-200 bg-white text-slate-500 hover:text-blue-600 hover:border-blue-200 transition-all duration-150 shadow-sm">
-                      <FaEdit size={13} />
-                    </button>
                     <button 
                       onClick={() => onDeleteExpense(expense._id)}
                       title="Delete Transaction"
@@ -171,8 +170,9 @@ export default function ExpenseTable({ expenses, totalExpense, isOverBudget, onA
                 <div>
                   <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Date</label>
                   <input 
-                    type="date" value={date} onChange={(e) => setDate(e.target.value)}
+                    type="date" value={date} max={todayStr} onChange={(e) => setDate(e.target.value)}
                     className="w-full px-3.5 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-slate-700 focus:bg-white focus:border-blue-500 transition-all outline-none"
+                    required
                   />
                 </div>
               </div>

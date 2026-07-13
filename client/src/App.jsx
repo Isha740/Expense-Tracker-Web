@@ -101,14 +101,6 @@ function App() {
   const currentTotalExpense = expenses.reduce((sum, item) => sum + item.amount, 0);
   const isOverBudget = limit > 0 && currentTotalExpense > limit;
 
-  const yearlyHistoricalData = [
-    { month: "Jan", expenses: 12000, limit: 15000 },
-    { month: "Feb", expenses: 18500, limit: 15000 },
-    { month: "Mar", expenses: 9400, limit: 15000 },
-    { month: "Apr", expenses: 14200, limit: 15000 },
-    { month: "May", expenses: 22000, limit: 20000 },
-  ];
-
   return (
     <div className="bg-gray-100 min-h-screen text-slate-800 font-sans antialiased pb-12">
       <Header />
