@@ -25,7 +25,7 @@
 
 ### 5. Mobile First Fluid Design Architecture
 *   **Tailwind CSS Responsive Grids:** Seamlessly scales from desktop monitors down to mobile screens. Heavy structural grids automatically stack into vertical alignments, and complex textual components scale back to clean icon indicators on phone screens.
-*   **Exclusive Dropdown Controls:** A secure profile dashboard portal built into the header with explicit avatar extraction rules. Clicking the name badge forces the menu open, locking it in place to ensure persistent touch usability until the user clicks the explicit **X close button** or **Sign Out**.
+*   **Exclusive Dropdown Controls:** A secure profile dashboard portal built into the header with explicit avatar extraction rules. Clicking the name badge forces the menu open, locking it in place to ensure persistent touch usability until the user clicks the explicit **close button** or **Sign Out**.
 
 ---
 
